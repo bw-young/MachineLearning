@@ -13,6 +13,12 @@
 // - created.                                                      //
 // 04/13/2021 - Brennan Young                                      //
 // - significantly simplified and corrected.                       //
+// 04/15/2021 - Brennan Young                                      //
+// - there can be an occasional issue computing cost with zero or  //
+//   near-zero inverse predictions. This is avoided by adding a    //
+//   very small number to the inverse predictions.                 //
+// - corrected an error where forcing binary outputs would go out  //
+//   of bounds.
 /////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
@@ -124,12 +130,11 @@ double LogisticRegressionModel::costFunc (
     const Matrix<double>& X, const Matrix<double>& Y,
     const Matrix<double>& Yp ) const
 {
-    //Matrix<double> Yp = sigmoid(
-    //    dot(weights, X.transpose()) + intercept);
     Matrix<double> Yt = Y.transpose();
     Matrix<double> Ypt = Yp.transpose();
     return (-1.0 / X.ncols())
-        * sum((Yt * elemLog(Ypt)) + ((1.0 - Yt) * (elemLog(1.0 - Ypt))));
+        * sum((Yt * elemLog(Ypt))
+        + ((1.0 - Yt) * (elemLog(1.0 - Ypt + 0.0000001))));
 }
 
 // Train the logistic regression model.
@@ -198,7 +203,7 @@ Matrix<double> LogisticRegressionModel::predict (
 {
     Matrix<double> Y = sigmoid(
         (weights * X.transpose()) + intercept);
-    for ( int i = 0; b && i < X.ncols(); ++i )
+    for ( int i = 0; b && i < Y.size(); ++i )
         Y[i] = Y[i] < 0.5 ? 0.0 : 1.0;
     return Y;
 }
