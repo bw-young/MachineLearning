@@ -18,7 +18,11 @@
 //   near-zero inverse predictions. This is avoided by adding a    //
 //   very small number to the inverse predictions.                 //
 // - corrected an error where forcing binary outputs would go out  //
-//   of bounds.
+//   of bounds.                                                    //
+// 05/06/2021 - Brennan Young                                      //
+// - corrected an occasional issue computing cost with zero or     //
+//   near-zero inverse predictions. This is avoided by adding a    //
+//   very small number to the inverse predictions.                 //
 /////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
@@ -133,7 +137,7 @@ double LogisticRegressionModel::costFunc (
     Matrix<double> Yt = Y.transpose();
     Matrix<double> Ypt = Yp.transpose();
     return (-1.0 / X.ncols())
-        * sum((Yt * elemLog(Ypt))
+        * sum((Yt * elemLog(Ypt + 0.0000001))
         + ((1.0 - Yt) * (elemLog(1.0 - Ypt + 0.0000001))));
 }
 
